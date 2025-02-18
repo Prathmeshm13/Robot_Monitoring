@@ -1,0 +1,2 @@
+"C:/Users/1041210/OneDrive - Blue Yonder/Desktop/FINAL_PYTHON_PROJECT/Backend/models/xgb_regressor.pkl"
+"C:/Users/1041210/OneDrive - Blue Yonder/Desktop/FINAL_PYTHON_PROJECT/Backend/models/trained_classifier (1).pkl"

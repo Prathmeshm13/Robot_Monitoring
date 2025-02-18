@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Failure Monitoring</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            font-family: 'Poppins', sans-serif;
+            color: #e0e0e0;
+            padding-top: 20px;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            box-shadow: 0px 4px 10px rgba(0, 255, 255, 0.2);
+            padding: 15px 20px;
+        }
+
+        .navbar-brand {
+            font-size: 22px;
+            font-weight: 600;
+            color: #00e6e6;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .navbar-brand:hover {
+            color: #00cccc;
+        }
+
+        .custom-select {
+            width: auto;
+            background: rgba(0, 128, 128, 0.7);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 4px 10px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-select:focus {
+            border-color: #00cccc;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+        }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        .chart-container {
+            background: rgba(0, 12, 25, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 6px 15px rgba(0, 255, 255, 0.2);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            position: relative;
+            z-index: 10;
+        }
+
+        .chart-container:hover {
+            transform: scale(1.03);
+            box-shadow: 0px 10px 25px rgba(0, 255, 255, 0.3);
+        }
+
+        h4 {
+            text-align: center;
+            color: #00e6e6;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .download-btn {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            background: #008080;
+            border: none;
+            font-weight: bold;
+            color: white;
+            transition: background 0.3s ease, transform 0.2s ease-in-out;
+        }
+
+        .download-btn:hover {
+            background: #00cccc;
+            transform: scale(1.05);
+        }
+
+        .logout-btn-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
+
+        .logout-btn-container button {
+            margin-left: 10px;
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .logout-btn-container button:hover {
+            background-color: #ff1a1a;
+        }
+
+        .username-text {
+            font-size: 16px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <a class="navbar-brand" href="#">Live Failure Monitoring</a>
+        <div class="logout-btn-container">
+
+            <button id="logoutBtn">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Failure Risk & Joint 1 Torque</h4>
+                    <canvas id="liveChart"></canvas>
+                    <button class="btn download-btn" onclick="downloadChart('liveChart')">Download</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Joint 1 vs. Ambient Temperature</h4>
+                    <canvas id="temperatureChart"></canvas>
+                    <button class="btn download-btn" onclick="downloadChart('temperatureChart')">Download</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Failure Risk Score vs. Voltage Fluctuation</h4>
+                    <canvas id="voltageChart"></canvas>
+                    <button class="btn download-btn" onclick="downloadChart('voltageChart')">Download</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Joint 1 Vibration vs. Joint 1 Velocity</h4>
+                    <canvas id="vibrationChart"></canvas>
+                    <button class="btn download-btn" onclick="downloadChart('vibrationChart')">Download</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Torque Distribution (Bar Chart)</h4>
+                    <canvas id="torqueBarChart"></canvas>
+                    <button class="btn download-btn" onclick="downloadChart('torqueBarChart')">Download</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>Temperature Correlation (Scatter Chart)</h4>
+                    <canvas id="tempScatterChart"></canvas>
+                    <button class="btn download-btn" onclick="downloadChart('tempScatterChart')">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer class="text-center mt-5 py-3" style="background-color: rgba(0, 0, 0, 0.7); color: #e0e0e0; position: relative; bottom: 0; width: 100%;">
+        <p>&copy; 2025 Live Failure Monitoring System | All Rights Reserved</p>
+    </footer>
+
+    <script>
+     
+
+        const createChart = (ctx, type, label1, label2, color1, color2) => {
+            return new Chart(ctx, {
+                type: type,
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: label1, borderColor: color1, backgroundColor: color1, data: [], fill: false },
+                        { label: label2, borderColor: color2, backgroundColor: color2, data: [], fill: false }
+                    ]
+                },
+                options: { responsive: true, scales: { x: { title: { display: true, text: 'Time' } } } }
+            });
+        };
+
+        const liveChart = createChart(document.getElementById('liveChart').getContext('2d'), 'line', 'Failure Risk Score', 'Joint 1 Torque', 'red', 'blue');
+        const tempChart = createChart(document.getElementById('temperatureChart').getContext('2d'), 'line', 'Joint 1 Temperature', 'Ambient Temperature', 'orange', 'green');
+        const voltageChart = createChart(document.getElementById('voltageChart').getContext('2d'), 'line', 'Failure Risk Score', 'Voltage Fluctuation', 'purple', 'cyan');
+        const vibrationChart = createChart(document.getElementById('vibrationChart').getContext('2d'), 'line', 'Joint 1 Vibration', 'Joint 1 Velocity', 'yellow', 'pink');
+        const torqueBarChart = createChart(document.getElementById('torqueBarChart').getContext('2d'), 'bar', 'Joint 1 Torque', 'Failure Risk Score', 'blue', 'red');
+        const tempScatterChart = createChart(document.getElementById('tempScatterChart').getContext('2d'), 'scatter', 'Joint 1 Temperature', 'Ambient Temperature', 'orange', 'green');
+        
+        function updateCharts(data) {
+            const timestamps = data.map(item => item.timestamp);
+            
+            liveChart.data.labels = timestamps;
+            liveChart.data.datasets[0].data = data.map(item => item.failure_risk_score);
+            liveChart.data.datasets[1].data = data.map(item => item.joint_1_torque);
+            liveChart.update();
+
+            tempChart.data.labels = timestamps;
+            tempChart.data.datasets[0].data = data.map(item => item.joint_1_temp);
+            tempChart.data.datasets[1].data = data.map(item => item.ambient_temp);
+            tempChart.update();
+
+            voltageChart.data.labels = timestamps;
+            voltageChart.data.datasets[0].data = data.map(item => item.failure_risk_score);
+            voltageChart.data.datasets[1].data = data.map(item => item.voltage_fluctuation);
+            voltageChart.update();
+
+            vibrationChart.data.labels = timestamps;
+            vibrationChart.data.datasets[0].data = data.map(item => item.joint_1_vibration);
+            vibrationChart.data.datasets[1].data = data.map(item => item.joint_1_velocity);
+            vibrationChart.update();
+
+            torqueBarChart.data.labels = timestamps;
+            torqueBarChart.data.datasets[0].data = data.map(item => item.joint_1_torque);
+            torqueBarChart.update();
+
+            tempScatterChart.data.datasets[0].data = data.map(item => ({ x: item.joint_1_temp, y: item.ambient_temp }));
+            tempScatterChart.update();
+        }
+
+        function downloadChart(chartId) {
+            const canvas = document.getElementById(chartId);
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = chartId + '.png';
+            link.click();
+        }
+
+        // Logout functionality
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            // Send a GET request to the /logout route to log out the user
+            fetch('/logout', {
+                method: 'GET',
+            }).then(response => {
+                if (response.ok) {
+                    window.location.href = '/';  // Redirect to login page after successful logout
+                } else {
+                    alert('Logout failed');
+                }
+            });
+        });
+        
+
+        // Simulating streaming data (Remove if using real-time data)
+        const eventSource = new EventSource('/stream-data');
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            if (Array.isArray(data)) updateCharts(data);
+        };
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
